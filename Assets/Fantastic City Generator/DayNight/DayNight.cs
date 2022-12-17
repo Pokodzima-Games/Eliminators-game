@@ -13,93 +13,17 @@ public class DayNight : MonoBehaviour
     //  (Materials that will be used both night and day do not need to be here)
     public Material[] materialDay;    // Add materials that are only used in the day scene, and are substituted in the night scene
     public Material[] materialNight;  // Add night scene materials that will replace day scene materials. (The sequence must be respected)
+    
+    private bool isNight;
 
-    //Here are the skyboxes for day and night.
-    //You can replace with other skyboxes
-    public Material skyBoxDay;
-    public Material skyBoxNight;
-
-    //Don't forget to add the Directional Light here
-    public Light directionalLight;
-
-    [HideInInspector]
-    public bool isNight;
-
-    [HideInInspector]
-    public bool isMoonLight;
-
-    [HideInInspector]
-    public bool isSpotLights;
-
-    [HideInInspector]
-    public bool isStreetLights;
-
-    [HideInInspector]
-    public bool night;
-
-    [HideInInspector]
-    public float intenseMoonLight = 0.2f;
-
-    [HideInInspector]
-    public float _intenseMoonLight;
-
-    [HideInInspector]
-    public float intenseSunLight = 1f;
-
-    [HideInInspector]
-    public float _intenseSunLight;
-
-
-    [HideInInspector]
-    public Color skyColorDay = new Color(0.74f, 0.62f, 0.60f);
-    [HideInInspector]
-    public Color equatorColorDay = new Color(0.74f, 0.74f, 0.74f);
-
-
-    [HideInInspector]
-    public Color _skyColorDay;
-    [HideInInspector]
-    public Color _equatorColorDay;
-
-
-    [HideInInspector]
-    public Color skyColorNight = new Color(0.78f, 0.72f, 0.72f);
-    [HideInInspector]
-    public Color equatorColorNight = new Color(0.16f, 0.16f, 0.16f);
-
-    [HideInInspector]
-    public Color _skyColorNight;
-    [HideInInspector]
-    public Color _equatorColorNight;
-
-    [HideInInspector]
-    public Color sunLightColor;
-    [HideInInspector]
-    public Color _sunLightColor;
-
-    [HideInInspector]
-    public Color moonLightColor;
-    [HideInInspector]
-    public Color _moonLightColor;
-
+    public void SetTimeOfADay(bool Night)
+    {
+        isNight = Night;
+        ChangeMaterial();
+    }
 
     public void ChangeMaterial()
     {
-
-        //Switching the skyboxes according to day/ night
-        RenderSettings.skybox = (isNight) ? skyBoxNight : skyBoxDay;
-
-
-        /*
-        Setting the ambient (gradient) light to fit day/night
-        These are properties of the "Lighting" window and Directional Light
-        */
-        UpdateColor();
-
-
-
-        //Configuring the Directional Light as it is day or night (sun/moon)
-        SetDirectionalLight();
 
         /*
         Substituting Night materials for Day materials (or vice versa) in all Mesh Renders within City-Maker
@@ -148,83 +72,11 @@ public class DayNight : MonoBehaviour
 
 
     }
-    public void UpdateColor()
-    {
-        /*
-       Setting the ambient (gradient) light to fit day/night
-       These are properties of the "Lighting" window and Directional Light
-       */
-
-        if (isNight)
-        {
-
-            //During the Night
-
-            if (directionalLight)
-                directionalLight.GetComponent<Light>().color = moonLightColor;
-
-            RenderSettings.ambientMode = AmbientMode.Trilight;
-
-            RenderSettings.ambientSkyColor = skyColorNight;  // Floor color/brightness (any face up) - no moonlight
-
-            RenderSettings.ambientEquatorColor = equatorColorNight;              // Wall color/ luminosity(any side facing)
-            RenderSettings.ambientGroundColor = new Color(0.07f, 0.07f, 0.07f);  // Ceiling color/brightness (any face down)
-        }
-        else
-        {
-            //During the day
-            RenderSettings.ambientMode = AmbientMode.Trilight;
-
-            RenderSettings.ambientSkyColor = skyColorDay;                        // Floor color/brightness (any face up) 
-            RenderSettings.ambientEquatorColor = equatorColorDay;                // Wall color/ luminosity(any side facing)
-            RenderSettings.ambientGroundColor = new Color(0.4f, 0.4f, 0.4f);     // Ceiling color/brightness (any face down)
-
-        }
-
-    }
-
-    public void SetDirectionalLight() //Configuring the Directional Light as it is day or night (sun/moon)
-    {
-
-        if (directionalLight)
-        {
-            directionalLight.GetComponent<Light>().enabled = (!isNight || isMoonLight);
-            directionalLight.intensity = (isNight) ? intenseMoonLight / 100 : intenseSunLight / 100;
-        }
-
-    }
+    
     public void SetStreetLights()  //Toggles street lamp lights on/off
     {
         GameObject[] tempArray = GameObject.FindObjectsOfType(typeof(GameObject)).Select(g => g as GameObject).Where(g => g.name == ("_LightV")).ToArray();
         foreach (GameObject lines in tempArray)
             lines.GetComponent<MeshRenderer>().enabled = isNight;
     }
-
-    /*
-    public void ShiftStreetLights(bool night)
-    {
-
-        GameObject[] tempArray = GameObject.FindObjectsOfType(typeof(GameObject)).Select(g => g as GameObject).Where(g => g.name == ("_LightV")).ToArray();
-
-        foreach (GameObject lines in tempArray)
-        {
-            lines.GetComponent<MeshRenderer>().enabled = night;
-            if(lines.transform.GetChild(0))
-                lines.transform.GetChild(0).GetComponent<Light>().enabled = (isStreetLights && night);
-        }
-
-
-
-    }
-
-    public void ShiftSpotLights(bool night)
-    {
-        
-        GameObject[]  tempArray = GameObject.FindObjectsOfType(typeof(GameObject)).Select(g => g as GameObject).Where(g => g.name == ("_Spot_Light")).ToArray();
-
-        foreach (GameObject lines in tempArray)
-            lines.GetComponent<Light>().enabled = (isSpotLights && night);
-
-    }
-    */
 }
