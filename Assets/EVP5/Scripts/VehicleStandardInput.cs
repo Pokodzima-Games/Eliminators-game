@@ -4,12 +4,13 @@
 // http://www.edy.es
 //------------------------------------------------------------------------------------------------
 
+using Mirror;
 using UnityEngine;
 
 namespace EVP
 {
 
-public class VehicleStandardInput : MonoBehaviour
+public class VehicleStandardInput : NetworkBehaviour
 	{
 	public VehicleController target;
 
@@ -51,17 +52,10 @@ public class VehicleStandardInput : MonoBehaviour
 		}
 
 
-	void Update ()
-		{
-		if (target == null) return;
-
-		if (Input.GetKeyDown(resetVehicleKey)) m_doReset = true;
-		}
-
-
 	void FixedUpdate ()
 		{
 		if (target == null) return;
+		if (!isLocalPlayer) return;
 
 		// Read the user input
 
